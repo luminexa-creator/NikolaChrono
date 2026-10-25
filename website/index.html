@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a4d8c">
+<title>NikolaChrono</title>
+<style>
+  :root {
+    --blue-900: #052a4e;
+    --blue-800: #0a4d8c;
+    --blue-700: #1565c0;
+    --blue-600: #1e88e5;
+    --blue-500: #42a5f5;
+    --blue-100: #e3f2fd;
+    --blue-50:  #f5faff;
+    --white:    #ffffff;
+    --gray-100: #eef2f7;
+    --gray-300: #c8d3e0;
+    --gray-500: #6b7a90;
+    --gray-800: #2c3e50;
+    --green:    #2ecc71;
+    --red:      #e74c3c;
+    --shadow-sm: 0 2px 6px rgba(10,77,140,0.08);
+    --shadow-md: 0 6px 20px rgba(10,77,140,0.12);
+    --shadow-lg: 0 14px 40px rgba(10,77,140,0.18);
+    --radius: 18px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(160deg, var(--blue-50) 0%, var(--blue-100) 100%);
+    color: var(--gray-800);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(66,165,245,0.18), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(30,136,229,0.15), transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 22px 18px 40px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    animation: fadeIn 0.6s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 4px 0;
+  }
+
+  .brand { display: flex; align-items: center; gap: 10px; }
+
+  .brand-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--blue-600), var(--blue-800));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+  }
+
+  .brand-logo svg { width: 24px; height: 24px; }
+
+  .brand-name {
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, var(--blue-800), var(--blue-500));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .brand-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--gray-500);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: -2px;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--gray-500);
+    transition: all 0.3s ease;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gray-300);
+    transition: all 0.3s ease;
+  }
+
+  .status-pill.online { color: var(--green); }
+  .status-pill.online .status-dot {
+    background: var(--green);
+    box-shadow: 0 0 0 0 rgba(46,204,113,0.6);
+    animation: pulse 1.6s infinite;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(46,204,113,0.6); }
+    70% { box-shadow: 0 0 0 10px rgba(46,204,113,0); }
+    100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
+  }
+
+  .clock-card {
+    background: linear-gradient(150deg, var(--blue-800) 0%, var(--blue-600) 100%);
+    border-radius: 26px;
+    padding: 26px 22px 24px;
+    color: var(--white);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .clock-card::before {
+    content: "";
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+  }
+
+  .clock-card::after {
+    content: "";
+    position: absolute;
+    bottom: -80px; left: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+
+  .clock-inner { position: relative; z-index: 1; }
+
+  .clock-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 6px;
+  }
+
+  .clock-time {
+    font-size: 3.6rem;
+    font-weight: 800;
+    letter-spacing: -2px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+  }
+
+  .clock-colon { animation: blink 1s steps(1) infinite; opacity: 0.8; }
+
+  @keyframes blink { 50% { opacity: 0.2; } }
+
+  .clock-seconds {
+    font-size: 1.4rem;
+    font-weight: 700;
+    opacity: 0.75;
+    margin-left: 4px;
+  }
+
+  .clock-date {
+    margin-top: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0.85;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .clock-weather {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.15);
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    backdrop-filter: blur(4px);
+    white-space: nowrap;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+    animation: slideUp 0.5s ease backwards;
+  }
+
+  @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--blue-800);
+    margin-bottom: 16px;
+  }
+
+  .card-title svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+  .connect-card {
+    background: linear-gradient(140deg, var(--white), var(--blue-50));
+    border: 1.5px dashed var(--blue-500);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 15px 18px;
+    border: none;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+    font-family: inherit;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
+    color: var(--white);
+    box-shadow: 0 6px 18px rgba(30,136,229,0.35);
+  }
+
+  .btn-primary:hover { box-shadow: 0 8px 24px rgba(30,136,229,0.45); }
+
+  .btn-primary:disabled {
+    background: var(--gray-300);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary { background: var(--blue-100); color: var(--blue-800); }
+  .btn-danger { background: #fdecea; color: var(--red); }
+
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .field { margin-bottom: 14px; }
+
+  .field-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--gray-500);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+
+  .input {
+    width: 100%;
+    padding: 13px 15px;
+    border: 2px solid var(--gray-100);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    background: var(--blue-50);
+    transition: border-color 0.2s ease, background 0.2s ease;
+    font-family: inherit;
+  }
+
+  .input:focus { outline: none; border-color: var(--blue-500); background: var(--white); }
+
+  .repeat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+  .chip {
+    padding: 11px 8px;
+    border: 2px solid var(--gray-100);
+    border-radius: 12px;
+    background: var(--blue-50);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--gray-500);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+
+  .chip.active {
+    background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
+    border-color: transparent;
+    color: var(--white);
+    box-shadow: 0 4px 14px rgba(30,136,229,0.3);
+  }
+
+  .toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .toggle-row:last-child { border-bottom: none; }
+
+  .toggle-info { display: flex; flex-direction: column; gap: 3px; }
+  .toggle-title { font-size: 0.9rem; font-weight: 700; color: var(--gray-800); }
+  .toggle-sub { font-size: 0.75rem; color: var(--gray-500); }
+
+  .switch { position: relative; width: 52px; height: 30px; flex-shrink: 0; }
+  .switch input { display: none; }
+
+  .switch-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--gray-300);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .switch-slider::before {
+    content: "";
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    left: 3px;
+    top: 3px;
+    background: var(--white);
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .switch input:checked + .switch-slider {
+    background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
+  }
+
+  .switch input:checked + .switch-slider::before { transform: translateX(22px); }
+
+  .log {
+    background: var(--blue-900);
+    border-radius: 12px;
+    padding: 14px;
+    height: 130px;
+    overflow-y: auto;
+    font-family: "SF Mono", "Monaco", "Consolas", monospace;
+    font-size: 0.75rem;
+    line-height: 1.7;
+    color: #b8e0ff;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .log-line { margin-bottom: 2px; word-break: break-word; }
+  .log-line.sent { color: #ffd54f; }
+  .log-line.recv { color: #7ee8a2; }
+  .log-line.info { color: #b8e0ff; }
+  .log-line.error { color: #ff8a80; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--blue-800);
+    color: var(--white);
+    padding: 13px 22px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+    z-index: 100;
+    pointer-events: none;
+    max-width: 90%;
+    text-align: center;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { background: linear-gradient(135deg, var(--blue-700), var(--green)); }
+  .toast.error { background: linear-gradient(135deg, #c0392b, var(--red)); }
+
+  .hidden { display: none !important; }
+
+  .hero-connect {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 18px 6px 6px;
+    gap: 12px;
+  }
+
+  .hero-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, var(--blue-600), var(--blue-800));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 26px rgba(30,136,229,0.35);
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .hero-icon svg { width: 34px; height: 34px; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+  }
+
+  .hero-connect h2 { font-size: 1.1rem; font-weight: 800; color: var(--blue-800); }
+  .hero-connect p { font-size: 0.85rem; color: var(--gray-500); line-height: 1.5; max-width: 300px; }
+
+  .browser-warn {
+    background: #fff3cd;
+    border-left: 4px solid #f0ad4e;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    color: #856404;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 380px) {
+    .clock-time { font-size: 2.9rem; }
+    .repeat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <div class="brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <polyline points="12 7 12 12 15 14"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">NikolaChrono</div>
+        <div class="brand-tag">Smart Clock</div>
+      </div>
+    </div>
+    <div class="status-pill" id="statusPill">
+      <span class="status-dot"></span>
+      <span id="statusText">Offline</span>
+    </div>
+  </div>
+
+  <div class="clock-card">
+    <div class="clock-inner">
+      <div class="clock-label">Live Time</div>
+      <div class="clock-time">
+        <span id="clockH">--</span>
+        <span class="clock-colon">:</span>
+        <span id="clockM">--</span>
+        <span class="clock-seconds" id="clockS">--</span>
+      </div>
+      <div class="clock-date">
+        <span id="clockDate">Loading...</span>
+        <span class="clock-weather" id="clockWeather">--</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="unsupported" class="hidden card">
+    <div class="browser-warn">
+      <strong>Web Bluetooth not supported.</strong><br>
+      Please use Chrome on Android or desktop. Safari on iOS does not support Web Bluetooth.
+    </div>
+  </div>
+
+  <div id="connectCard" class="card connect-card">
+    <div class="hero-connect">
+      <div class="hero-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 7l10 10M17 7L7 17"/>
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+        </svg>
+      </div>
+      <h2>Connect to NikolaChrono</h2>
+      <p>Tap below to pair with your clock. Your browser will ask for Bluetooth permission.</p>
+      <button class="btn btn-primary" id="connectBtn" style="margin-top:6px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="12 2 12 8 8 5"/>
+          <polyline points="12 8 16 5"/>
+          <line x1="12" y1="8" x2="12" y2="16"/>
+          <polyline points="8 19 12 22 16 19"/>
+        </svg>
+        Connect Bluetooth
+      </button>
+    </div>
+  </div>
+
+  <div id="controls" class="hidden" style="display:flex;flex-direction:column;gap:16px;">
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <polyline points="12 7 12 12 15 14"/>
+        </svg>
+        Set Time
+      </div>
+      <div class="field">
+        <label class="field-label">Time (HH:MM:SS)</label>
+        <input type="time" step="1" class="input" id="timeInput">
+      </div>
+      <button class="btn btn-primary" onclick="setTime()">Apply Time</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+        Alarm
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">Alarm Enabled</div>
+          <div class="toggle-sub">Turn the daily alarm on or off</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="alarmToggle" checked onchange="toggleAlarm()">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label class="field-label">Alarm Time</label>
+        <input type="time" class="input" id="alarmInput" value="07:00">
+      </div>
+
+      <label class="field-label">Repeat Interval</label>
+      <div class="repeat-grid" id="repeatGrid">
+        <div class="chip active" data-val="0">Once</div>
+        <div class="chip" data-val="5">5 min</div>
+        <div class="chip" data-val="10">10 min</div>
+        <div class="chip" data-val="15">15 min</div>
+        <div class="chip" data-val="30">30 min</div>
+        <div class="chip" data-val="60">60 min</div>
+      </div>
+
+      <div class="btn-row" style="margin-top:16px;">
+        <button class="btn btn-primary" onclick="setAlarm()">Set Alarm</button>
+        <button class="btn btn-secondary" onclick="queryAlarm()">Query</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Quick Actions
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="sendCmd('SNOOZE')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <polyline points="12 7 12 12 9 14"/>
+          </svg>
+          Snooze 5m
+        </button>
+        <button class="btn btn-danger" onclick="sendCmd('STOP')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="6" width="12" height="12" rx="2"/>
+          </svg>
+          Stop
+        </button>
+      </div>
+      <div class="btn-row" style="margin-top:10px;">
+        <button class="btn btn-secondary" onclick="sendCmd('TIME?')">Get Time</button>
+        <button class="btn btn-secondary" onclick="sendCmd('WEATHER?')">Get Weather</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="4 17 10 11 4 5"/>
+          <line x1="12" y1="19" x2="20" y2="19"/>
+        </svg>
+        Console
+      </div>
+      <div class="log" id="log"></div>
+    </div>
+
+    <button class="btn btn-secondary" onclick="disconnect()">Disconnect</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+  const RX_UUID      = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+  const TX_UUID      = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+
+  let device = null;
+  let rxChar = null;
+  let txChar = null;
+  let connected = false;
+  let selectedRepeat = 0;
+  let rxBuffer = '';
+  let rxTimer = null;
+
+  const $ = id => document.getElementById(id);
+  const statusPill = $('statusPill');
+  const statusText = $('statusText');
+  const connectCard = $('connectCard');
+  const controls = $('controls');
+  const logEl = $('log');
+  const toastEl = $('toast');
+
+  function log(msg, type = 'info') {
+    const line = document.createElement('div');
+    line.className = 'log-line ' + type;
+    const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
+    line.textContent = '[' + ts + '] ' + msg;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+    while (logEl.children.length > 100) logEl.removeChild(logEl.firstChild);
+  }
+
+  function toast(msg, type = '') {
+    toastEl.textContent = msg;
+    toastEl.className = 'toast show ' + type;
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toastEl.classList.remove('show'), 2600);
+  }
+
+  function updateClock() {
+    const now = new Date();
+    $('clockH').textContent = String(now.getHours()).padStart(2, '0');
+    $('clockM').textContent = String(now.getMinutes()).padStart(2, '0');
+    $('clockS').textContent = String(now.getSeconds()).padStart(2, '0');
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    $('clockDate').textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  function setTimeInputNow() {
+    const now = new Date();
+    $('timeInput').value =
+      String(now.getHours()).padStart(2, '0') + ':' +
+      String(now.getMinutes()).padStart(2, '0') + ':' +
+      String(now.getSeconds()).padStart(2, '0');
+  }
+  setTimeInputNow();
+  setInterval(setTimeInputNow, 1000);
+
+  if (!navigator.bluetooth) {
+    $('unsupported').classList.remove('hidden');
+    connectCard.classList.add('hidden');
+  }
+
+  $('connectBtn').addEventListener('click', async () => {
+    if (!navigator.bluetooth) {
+      toast('Bluetooth not supported', 'error');
+      return;
+    }
+    try {
+      log('Requesting Bluetooth device...', 'info');
+      device = await navigator.bluetooth.requestDevice({
+        filters: [{ namePrefix: 'Nikola' }],
+        optionalServices: [SERVICE_UUID]
+      });
+
+      device.addEventListener('gattserverdisconnected', onDisconnected);
+
+      log('Connecting to GATT server...', 'info');
+      const server = await device.gatt.connect();
+
+      log('Getting service...', 'info');
+      const service = await server.getPrimaryService(SERVICE_UUID);
+
+      log('Getting RX characteristic...', 'info');
+      rxChar = await service.getCharacteristic(RX_UUID);
+
+      log('Getting TX characteristic...', 'info');
+      txChar = await service.getCharacteristic(TX_UUID);
+
+      log('Enabling notifications...', 'info');
+      await txChar.startNotifications();
+      txChar.addEventListener('characteristicvaluechanged', onNotify);
+
+      connected = true;
+      statusPill.classList.add('online');
+      statusText.textContent = 'Connected';
+      connectCard.classList.add('hidden');
+      controls.classList.remove('hidden');
+      toast('Connected to ' + device.name, 'success');
+      log('Connected to ' + device.name, 'info');
+
+      setTimeout(() => sendCmd('TIME?'), 400);
+      setTimeout(() => sendCmd('ALARM?'), 800);
+      setTimeout(() => sendCmd('WEATHER?'), 1200);
+
+    } catch (err) {
+      log('Error: ' + err.message, 'error');
+      toast(err.message, 'error');
+    }
+  });
+
+  function onNotify(event) {
+    const chunk = new TextDecoder().decode(event.target.value);
+    rxBuffer += chunk;
+    clearTimeout(rxTimer);
+    rxTimer = setTimeout(() => {
+      if (rxBuffer.length > 0) {
+        processReply(rxBuffer);
+        rxBuffer = '';
+      }
+    }, 120);
+  }
+
+  function processReply(text) {
+    log('<< ' + text, 'recv');
+
+    if (/^\d{2}:\d{2}:\d{2}$/.test(text)) {
+      const parts = text.split(':');
+      $('clockH').textContent = parts[0];
+      $('clockM').textContent = parts[1];
+      $('clockS').textContent = parts[2];
+      return;
+    }
+
+    if (/^\d{2}:\d{2}\s+(ON|OFF)/.test(text)) {
+      const parts = text.split(/\s+/);
+      $('alarmInput').value = parts[0];
+      $('alarmToggle').checked = parts[1] === 'ON';
+      const repeatIdx = parts.indexOf('REPEAT');
+      if (repeatIdx >= 0) {
+        const m = parts[repeatIdx + 1] || '0';
+        const mins = parseInt(m.replace('M', ''), 10) || 0;
+        selectRepeatChip(mins);
+      } else {
+        selectRepeatChip(0);
+      }
+      toast('Alarm: ' + text, 'success');
+      return;
+    }
+
+    if (/^-?\d+(\.\d+)?C\s/.test(text)) {
+      $('clockWeather').textContent = text;
+      toast('Weather: ' + text, 'success');
+      return;
+    }
+
+    if (/^(Time set|Alarm|Snoozed|Repeat|Alarm stopped)/.test(text)) {
+      toast(text, 'success');
+      return;
+    }
+
+    if (/^(Error|Unknown|Weather not)/.test(text)) {
+      toast(text, 'error');
+      return;
+    }
+  }
+
+  function selectRepeatChip(mins) {
+    document.querySelectorAll('#repeatGrid .chip').forEach(c => {
+      c.classList.toggle('active', parseInt(c.dataset.val, 10) === mins);
+    });
+    selectedRepeat = mins;
+  }
+
+  function onDisconnected() {
+    connected = false;
+    statusPill.classList.remove('online');
+    statusText.textContent = 'Offline';
+    connectCard.classList.remove('hidden');
+    controls.classList.add('hidden');
+    log('Disconnected', 'error');
+    toast('Disconnected', 'error');
+  }
+
+  async function sendCmd(cmd) {
+    if (!connected || !rxChar) {
+      toast('Not connected', 'error');
+      return;
+    }
+    try {
+      const encoder = new TextEncoder();
+      if (rxChar.writeValueWithResponse) {
+        await rxChar.writeValueWithResponse(encoder.encode(cmd));
+      } else {
+        await rxChar.writeValue(encoder.encode(cmd));
+      }
+      log('>> ' + cmd, 'sent');
+    } catch (err) {
+      log('Send error: ' + err.message, 'error');
+      toast(err.message, 'error');
+    }
+  }
+
+  async function setTime() {
+    const val = $('timeInput').value;
+    if (!val) { toast('Choose a time', 'error'); return; }
+    const parts = val.split(':');
+    const hh = parseInt(parts[0], 10);
+    const mm = parseInt(parts[1], 10);
+    const ss = parseInt(parts[2] || '0', 10);
+    if (hh < 0 || hh > 23 || mm < 0 || mm > 59 || ss < 0 || ss > 59) {
+      toast('Invalid time', 'error');
+      return;
+    }
+    await sendCmd('SET TIME ' + val);
+    toast('Time command sent', 'success');
+  }
+
+  async function setAlarm() {
+    const val = $('alarmInput').value;
+    if (!val) { toast('Choose alarm time', 'error'); return; }
+    await sendCmd('SET ALARM ' + val);
+    await new Promise(r => setTimeout(r, 300));
+    await sendCmd('SET REPEAT ' + selectedRepeat);
+  }
+
+  async function toggleAlarm() {
+    const on = $('alarmToggle').checked;
+    await sendCmd('SET ALARM ' + (on ? 'ON' : 'OFF'));
+  }
+
+  async function queryAlarm() {
+    await sendCmd('ALARM?');
+  }
+
+  $('repeatGrid').addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    document.querySelectorAll('#repeatGrid .chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    selectedRepeat = parseInt(chip.dataset.val, 10);
+  });
+
+  function disconnect() {
+    if (device && device.gatt.connected) {
+      device.gatt.disconnect();
+    }
+  }
+</script>
+</body>
+          </html>
