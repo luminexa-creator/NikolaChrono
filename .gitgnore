@@ -1,0 +1,103 @@
+# Secrets
+# Keep credentials and private keys out of version control.
+.env
+.env.*
+!.env.example
+.env.local
+config.local.h
+secrets.h
+wifi_credentials.h
+credentials.h
+*.key
+*.pem
+
+# Arduino compiled files are ignored; source .ino files are tracked.
+# Arduino
+*.hex
+*.bin
+*.elf
+*.map
+build/
+.arduino15/
+libraries/*.bak
+
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+.clang_complete
+.gcc-flags.json
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.code-workspace
+
+# Keep project documentation and image assets tracked.
+!assets/*.jpg
+!assets/*.png
+!docs/*.md
+
+# Node / Web
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-error.log*
+
+# Operating Systems - macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Operating Systems - Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Operating Systems - Linux
+.directory
+.Trash-*/
+
+# Editors - Vim and Emacs
+*.swp
+*.swo
+*~
+
+# Editors - Sublime Text
+*.sublime-workspace
+
+# Editors - JetBrains IDEs
+.idea/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.orig
+*.rej
+
+# Arduino and C/C++ generated artifacts
+*.o
+*.a
+*.d
+*.class
+*.out
+core
+core.*
+
+# Test and coverage output
+coverage/
+.nyc_output/
+
+# Local environment and tool caches
+.cache/
+.temp/
+.tmp/
+*.local
+
+# Personal notes
+NOTES.md
+TODO.md
