@@ -1,0 +1,101 @@
+# Wiring Guide
+
+Complete wiring instructions for NikolaChrono.
+
+> **Safety First**
+>
+> - **RTC: 3.3V ONLY.** Connect the DS3231 VCC pin to ESP32 3V3. Do not connect it to 5V.
+> - **LCD: 5V ONLY.** Connect the 16x2 I2C LCD module VCC to ESP32 VIN (5V) for best brightness. Verify I2C signal voltage compatibility before connecting it to the ESP32.
+> - **Common ground:** Connect the grounds of the ESP32, RTC, LCD, TM1637, buttons, buzzer, and LED circuit together.
+
+## Bill of Materials
+
+| Qty | Component | Model | Interface | Notes |
+|---:|---|---|---|---|
+| 1 | Microcontroller | ESP32 DevKit, 38-pin or compatible 30-pin | GPIO, I2C, Wi-Fi, BLE | Main controller |
+| 1 | Real-time clock | DS3231 RTC module | I2C, address `0x68` | Requires 3.3V supply |
+| 1 | Main display | TM1637 4-digit, 7-segment display | Two-wire GPIO interface | Displays HH:MM |
+| 1 | Secondary display | 16x2 LCD with I2C module | I2C, address `0x27` or `0x3F` | Powered by 5V |
+| 5 | Tactile push buttons | Momentary normally-open buttons | Digital GPIO inputs | MODE, PLUS, MINUS, SNOOZE, STOP |
+| 1 | Active buzzer | Active DC buzzer | Digital output | Alarm sound |
+| 1 | Indicator LED | 5mm LED | Digital output | Second indicator |
+| 1 | Current-limiting resistor | 220 ohms | Series connection | Required for the LED |
+| 1 | RTC backup battery | CR2032, 3V | Battery holder on DS3231 | Maintains RTC time without main power |
+| 1 | Breadboard | Standard solderless breadboard | Prototyping | Recommended for initial assembly |
+| As needed | Jumper wires | Male-to-male / compatible leads | Electrical connections | Match the ESP32 and module headers |
+| 1 | USB cable | Data-capable USB cable | USB | Programming and power |
+
+## Pin Map (Master Table)
+
+The following table defines the required signal and power connections for NikolaChrono.
+
+| Component | ESP32 Pin | Type | Notes |
+|---|---|---|---|
+| DS3231 VCC | 3V3 | Power output | **3.3V only** |
+| DS3231 GND | GND | Ground | Common ground |
+| DS3231 SDA | GPIO 21 | I2C data | Shared I2C bus |
+| DS3231 SCL | GPIO 22 | I2C clock | Shared I2C bus |
+| I2C LCD VCC | VIN | Power output | 5V supply |
+| I2C LCD GND | GND | Ground | Common ground |
+| I2C LCD SDA | GPIO 21 | I2C data | Shared I2C bus |
+| I2C LCD SCL | GPIO 22 | I2C clock | Shared I2C bus |
+| TM1637 VCC | 3V3 | Power output | Use a compatible module |
+| TM1637 GND | GND | Ground | Common ground |
+| TM1637 CLK | GPIO 26 | Digital output | Clock signal |
+| TM1637 DIO | GPIO 25 | Bidirectional digital signal | Data signal |
+| MODE button, pin 1 | GPIO 17 | Digital input | Uses `INPUT_PULLUP` |
+| MODE button, pin 2 | GND | Ground | Connect to common ground |
+| PLUS button, pin 1 | GPIO 16 | Digital input | Uses `INPUT_PULLUP` |
+| PLUS button, pin 2 | GND | Ground | Connect to common ground |
+| MINUS button, pin 1 | GPIO 4 | Digital input | Strap pin; avoid pressing during boot |
+| MINUS button, pin 2 | GND | Ground | Connect to common ground |
+| SNOOZE button, pin 1 | GPIO 13 | Digital input | Uses `INPUT_PULLUP` |
+| SNOOZE button, pin 2 | GND | Ground | Connect to common ground |
+| STOP button, pin 1 | GPIO 18 | Digital input | Uses `INPUT_PULLUP` |
+| STOP button, pin 2 | GND | Ground | Connect to common ground |
+| Active buzzer positive | GPIO 27 | Digital output | Verify current requirements |
+| Active buzzer negative | GND | Ground | Common ground |
+| LED anode | GPIO 32 through 220Ω resistor | Digital output | Resistor connected in series |
+| LED cathode | GND | Ground | Common ground |
+| DS3231 backup battery | DS3231 battery holder | RTC backup supply | CR2032, correct polarity |
+
+**Important:** These connections are the authoritative pin assignments for this wiring guide. The firmware must use the same GPIO assignments. GPIO 2 is not used by this design.
+
+## I2C Bus (RTC + LCD)
+
+The DS3231 real-time clock and the 16x2 LCD with its I2C backpack share a single I2C bus.
+
+Both devices connect to the same ESP32 data and clock pins:
+
+- **SDA:** GPIO 21
+- **SCL:** GPIO 22
+
+I2C allows multiple devices to share the same two signal wires, provided that each device has a unique address on the bus.
+
+### I2C Addresses
+
+| Device | Expected Address | Function |
+|---|---|---|
+| DS3231 RTC | `0x68` | Maintains date and time |
+| 16x2 I2C LCD | `0x27` or `0x3F` | Displays clock information |
+
+The LCD address depends on the I2C backpack installed on the module. Use an I2C scanner to determine the actual address before configuring the firmware.
+
+### Shared Bus Diagram
+
+```text
+                 ESP32 DevKit
+                +-------------+
+                |             |
+GPIO 21 (SDA) --+-------------+---- SDA ---- DS3231 RTC
+                |             |       |
+                |             |       +---- SDA ---- I2C LCD
+GPIO 22 (SCL) --+-------------+---- SCL ---- DS3231 RTC
+                |             |       |
+                |             |       +---- SCL ---- I2C LCD
+                |             |
+3V3 ------------+-------------+------------ RTC VCC
+VIN (5V) -------+-------------+------------ LCD VCC
+GND ------------+-------------+------------ RTC GND
+                |             +------------ LCD GND
+                +-------------+
